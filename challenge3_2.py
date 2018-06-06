@@ -3,33 +3,44 @@ from openpyxl import Workbook
 
 from datetime import datetime
 
-def get_sheet_data(wb, sheet_item):
-    sheet = wb.get_sheet_by_name(sheet_item)
-    sheet_row = sheet.max_row
-    sheet_column = sheet.max_column
-    data_lst = []
-
-    for row in range (2, sheet_row+1):
-        obj = {}
-        date = sheet['A' + str(row)].value
-        name = sheet['B' + str(row)].value
-        num  = sheet['C' + str(row)].value
-        obj = { 'date': date, 'name': name, 'num': num}
-        data_lst.append(obj)
-
-    return data_lst
+wb = load_workbook('courses.xlsx')
+student_sheet = wb['students']
+time_sheet = wb['time']
 
 
 def combine():
-    wb = load_workbook('courses.xlsx')
-    lst = wb.get_sheet_names()
-    sheet1_data = get_sheet_data(wb, lst[0])
-    sheet2_data = get_sheet_data(wb, lst[1])
-    print(sheet1_data[:3])
-    print(sheet2_data[:3])
+    combine_sheet = wb.create_sheet(title='combine')
+    combine_sheet.append(['创建时间', '课程名称', '学习人数', '学习时间'])
+
+    for stu in student_sheet.values:
+        if stu[2] != '学习人数':
+            for time in time_sheet.values:
+                if time[1] == stu[2]:
+                    combine_sheet.append(list(shu) + time[2])
+
+    wb.save('courses.xlsx')
 
 def split():
-    pass 
+    combine_sheet = wb['combine']
+    split_name = []
+
+    for item in combine_sheet.values:
+        if item[0] != '创建时间':
+            split_name.append(item[0].strftime('%Y'))
+
+    for name in set(split_name):
+        wb_temp = Workbook()
+        wb_temp.remove(wb_temp.active)
+
+        ws = wb_temp.create_sheet(title=name)
+
+        for item_by_year in combine_sheet_year:
+            if item_by_year[0] != '创建时间':
+                if item_by_year[0].strftime('%Y') == name:
+                    ws.append(item_by_year)
+        
+        wb_temp.save('{}.xlsx'.format(name))
+
 
 if __name__ == '__main__':
     combine() 
