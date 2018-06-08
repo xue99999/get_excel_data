@@ -15,8 +15,8 @@ def combine():
     for stu in student_sheet.values:
         if stu[2] != '学习人数':
             for time in time_sheet.values:
-                if time[1] == stu[2]:
-                    combine_sheet.append(list(shu) + time[2])
+                if time[1] == stu[1]:
+                    combine_sheet.append(list(stu) + [time[2]])
 
     wb.save('courses.xlsx')
 
